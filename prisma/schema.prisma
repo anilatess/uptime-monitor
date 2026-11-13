@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  monitors     Monitor[]
+}
+
+model Monitor {
+  id              Int           @id @default(autoincrement())
+  name            String
+  url             String
+  intervalMinutes Int           @default(5)
+  createdAt       DateTime      @default(now())
+  userId          Int
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checks          CheckResult[]
+}
+
+model CheckResult {
+  id             Int      @id @default(autoincrement())
+  monitorId      Int
+  statusCode     Int?
+  responseTimeMs Int?
+  isUp           Boolean
+  checkedAt      DateTime @default(now())
+  monitor        Monitor  @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+}
